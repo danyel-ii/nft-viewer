@@ -50,6 +50,9 @@ The ribbon tries to load the NFT image URL (and a few fallback URLs).
 It prefers our own `/api/media` proxy first, which helps when the browser blocks cross-site images.
 Thumbnails use `loading="lazy"` so we don’t download every image at once.
 
+The ribbon also uses a **grid** trick to keep the thumbnails a good size.
+It computes each thumbnail width so about 7 thumbnails fit across the ribbon at once.
+
 If you focus a thumbnail (with Tab), the app won’t use ←/→ to flip the whole deck.
 That’s because ribbon elements are marked with `data-no-global-keys`.
 
