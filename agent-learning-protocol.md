@@ -25,6 +25,91 @@ Add short “never again” rules here when patterns repeat.
 
 ## Log (newest first)
 
+### 2026-02-10 — `vercel env add` Failed When Piping Values Without A Target (And With A Misplaced Pipe)
+**Task/Context:**  
+Add `.env.local` secrets to the Vercel project via CLI (so deploys can call Alchemy + resolve ENS).
+
+**Mistake:**  
+1) Piped a heredoc into `vercel env add` with the `|` on the wrong line (zsh parse error).  
+2) Tried `vercel env add ALCHEMY_KEY --sensitive --force` while piping stdin, but omitted the required `<production|preview|development>` target.
+
+**Symptom / Evidence:**  
+- `zsh: parse error near \`|'`  
+- `Error: Invalid number of arguments. Usage: \`vercel env add <name> <target> <gitbranch> < <file>\``
+
+**Root cause:**  
+- Shell syntax: a heredoc pipe must be placed on the same line as the command invocation.  
+- Vercel CLI: when taking a value from stdin, it requires an explicit target environment.
+
+**Fix (what we changed):**  
+Used explicit targets and piped on the same line, e.g. `node ... | vercel env add ALCHEMY_KEY production ...` (and repeated per target).
+
+**Prevention (so it doesn’t happen again):**  
+When scripting `vercel env add`, always:
+- Put the pipe on the same line as the command.  
+- Pass a target (`production`, `preview`, or `development`) when piping stdin.  
+- Confirm syntax via `vercel env add --help` before running.
+
+**References (files/commands):**  
+- Commands: `vercel link`, `vercel env add --help`, `vercel env add ALCHEMY_KEY production`
+
+**Tags:**  
+`vercel`, `deploy`, `workflow`
+
+### 2026-02-10 — Vercel Disallowed `--sensitive` Env Vars For The `development` Target
+**Task/Context:**  
+Set `ALCHEMY_KEY` + `RPC_URL` across Vercel environments.
+
+**Mistake:**  
+Tried to set a sensitive env var for the `development` target.
+
+**Symptom / Evidence:**  
+`Error: You cannot set a Sensitive Environment Variable's target to development.`
+
+**Root cause:**  
+Vercel requires development env vars to be retrievable (e.g. for `vercel env pull`), so it disallows “sensitive” values for `development`.
+
+**Fix (what we changed):**  
+Set `--sensitive` only for `production` and `preview`. Set `development` without `--sensitive`.
+
+**Prevention (so it doesn’t happen again):**  
+Use `--sensitive` only for `production`/`preview`. Expect `development` vars to be pullable into `.env.local`.
+
+**References (files/commands):**  
+- Commands: `vercel env add ALCHEMY_KEY development`, `vercel env add RPC_URL preview --sensitive`
+
+**Tags:**  
+`vercel`, `deploy`
+
+### 2026-02-10 — Secret Scan Commands Failed Due To `git grep` Pattern/Quoting Issues
+**Task/Context:**  
+Verify the GitHub repo does not contain committed secrets (keys/tokens/private keys).
+
+**Mistake:**  
+Ran `git grep` with patterns that start with `-` (like `-----BEGIN`) without `-e/--`, and used a misquoted regex that broke zsh parsing.
+
+**Symptom / Evidence:**  
+- `error: unknown option \`---BEGIN ...'`  
+- `zsh: parse error near \`)\'`
+
+**Root cause:**  
+- `git grep` treats patterns starting with `-` as CLI options unless they’re provided via `-e` (or after `--`).  
+- Complex regex quoting in zsh is easy to break when mixing `'` and `"` characters.
+
+**Fix (what we changed):**  
+Re-ran scans using `git grep -e <pattern> -- .` and safer quoting.
+
+**Prevention (so it doesn’t happen again):**  
+For `git grep` secret scans:
+- Always pass patterns via `-e` and include `--` before paths.  
+- Prefer simpler regexes and double quotes when the pattern must include `'`.
+
+**References (files/commands):**  
+- Commands: `git grep -Il -e '-----BEGIN ' -- .`
+
+**Tags:**  
+`security`, `workflow`
+
 ### 2026-02-10 — ESLint Failed Due To Mutating A Ref During Render In The Deck Ribbon
 **Task/Context:**  
 Add a small bottom “thumbnail ribbon” to let users scroll NFTs and click one to bring it to the top of the deck.
