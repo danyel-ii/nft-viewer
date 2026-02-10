@@ -445,7 +445,7 @@ export function NftDeckApp(props: Props) {
           </div>
 
           {order.length ? (
-            <div className="absolute bottom-6 left-1/2 w-[min(92%,720px)] -translate-x-1/2">
+            <div className="absolute bottom-6 left-1/2 w-[min(96%,980px)] -translate-x-1/2">
               <DeckRibbon
                 cards={order}
                 activeIndex={activeIndex}

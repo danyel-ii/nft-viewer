@@ -99,7 +99,8 @@ function RibbonThumb(props: {
       disabled={props.disabled}
       onClick={props.onSelect}
       className={clsx(
-        "relative h-14 w-full min-w-16 overflow-hidden rounded-none bg-white bauhaus-stroke",
+        "relative h-16 w-full min-w-20 overflow-hidden rounded-none bg-white bauhaus-stroke",
+        "snap-center",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ink-black)]",
         "disabled:cursor-not-allowed disabled:opacity-60",
         props.isActive && "outline outline-2 outline-[var(--bauhaus-red)] outline-offset-2",
@@ -164,7 +165,21 @@ export function DeckRibbon(props: {
       data-no-global-keys
       aria-label="NFT thumbnail ribbon"
     >
-      <div className="grid grid-flow-col auto-cols-[minmax(0,calc((100%_-_3rem)_/_7))] gap-2 overflow-x-auto overscroll-x-contain scroll-smooth">
+      <div
+        className={clsx(
+          "grid grid-flow-col auto-cols-[minmax(84px,calc((100%_-_3rem)_/_7))] gap-2",
+          "overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth",
+          "snap-x snap-mandatory",
+          "cursor-x-resize",
+        )}
+        onWheel={(e) => {
+          const el = e.currentTarget;
+          if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // user is already scrolling horizontally
+          if (el.scrollWidth <= el.clientWidth) return; // no overflow
+          el.scrollLeft += e.deltaY;
+          e.preventDefault();
+        }}
+      >
         {props.cards.map((card, index) => (
           <RibbonThumb
             key={card.id}

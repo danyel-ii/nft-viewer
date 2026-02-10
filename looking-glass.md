@@ -53,7 +53,10 @@ Thumbnails use `loading="lazy"` so we don’t download every image at once.
 
 The ribbon also uses a **grid** trick to keep the thumbnails a good size.
 It computes each thumbnail width so about 7 thumbnails fit across the ribbon at once.
-Each thumbnail also has a minimum width so the ribbon can’t collapse into thin “stripes”.
+Each thumbnail also has a minimum width so they stay readable (and the ribbon won’t collapse into thin “stripes”).
+
+When you scroll the ribbon, it “snaps” so a thumbnail lands neatly in place.
+If you have a mouse wheel, rolling the wheel while your pointer is over the ribbon scrolls the ribbon left/right.
 
 If you focus a thumbnail (with Tab), the app won’t use ←/→ to flip the whole deck.
 That’s because ribbon elements are marked with `data-no-global-keys`.
