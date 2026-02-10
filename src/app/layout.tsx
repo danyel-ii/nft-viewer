@@ -20,7 +20,7 @@ const fontMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "NFT Trading Card Deck",
-  description: "Enter an address or ENS and browse NFTs as a 3D trading card deck.",
+  description: "Enter an address or ENS and browse NFTs as a trading card deck.",
 };
 
 export default function RootLayout({

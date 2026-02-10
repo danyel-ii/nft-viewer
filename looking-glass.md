@@ -16,7 +16,7 @@ Add new words as they appear.
 - **API route**: a special URL in our app that runs code on the server and returns JSON data.
 - **Query parameters**: the `?key=value` bits in a URL (they are inputs to an API route).
 - **Normalize**: turn messy data into a clean, predictable shape the app can use.
-- **3D transform**: a CSS trick that makes things look like they have depth (like a real card flipping).
+- **Flip transform**: a CSS trick that makes a card look like it flips in space.
 - **Cache**: a short-term memory that avoids re-downloading the same data too often.
 - **CSS variable**: a named color/number we store in CSS (like `--ink-black`) so many parts of the UI can share it.
 - **Palette**: the small set of colors the app uses so it looks consistent.
@@ -181,7 +181,7 @@ In the browser, the card tries the first URL.
 If the browser says “this image failed”, the card automatically tries the next fallback URL.
 It only shows “No media” after every candidate fails.
 
-Because the deck uses a **3D transform**, we avoid “lazy loading” for the visible cards.
+Because the deck uses flip/tilt CSS transforms, we avoid “lazy loading” for the visible cards.
 That means the top-of-deck images start downloading right away instead of sometimes staying blank.
 
 If a browser extension blocks cross-site media (for example “blocked by client”), the card can also try a same-origin proxy.
@@ -241,7 +241,7 @@ Then the server asks **Alchemy’s NFT API** for your NFTs, **normalizes** the r
 
 ---
 
-### Feature: 3D Trading Card Deck
+### Feature: Trading Card Deck
 **What you can do (in the app):**  
 Flip the top card to see the front and back, move to the next/previous card, and shuffle the deck.
 
@@ -250,7 +250,7 @@ The deck keeps **state**: a list of cards in an order (top card first) and wheth
 
 When you click **Next**, the top card moves to the bottom of the list. When you click **Shuffle**, the list is mixed up. This changes what card is on top.
 
-The “3D” look is made with a **3D transform**: the deck container has “perspective”, each card is offset a little, and the top card rotates around the Y axis to flip.
+The physical “deck” look is made with CSS transforms: the deck container has “perspective”, each card is offset a little, and the top card rotates around the Y axis to flip.
 
 **Where this lives in the code:**  
 - UI piece(s): `src/components/TradingCardDeck.tsx`, `src/components/TradingCard.tsx`, `src/components/DeckControls.tsx`
@@ -258,7 +258,7 @@ The “3D” look is made with a **3D transform**: the deck container has “per
 - Tests (if any): `src/lib/ipfs.test.ts` (media URL helpers that make images/videos load more often)
 
 **New word(s) in this feature:**  
-- **3D transform**: CSS that makes the card look like it flips in real space.
+- **Flip transform**: CSS that makes the card look like it flips in real space.
 
 ---
 
