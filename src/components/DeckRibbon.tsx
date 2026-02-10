@@ -31,20 +31,20 @@ function buildThumbAttemptUrls(args: { imageUrl: string | null; imageFallbackUrl
     base.push(url);
   }
 
-  // Prefer a same-origin proxy URL first (more reliable with extensions/shields),
-  // then fall back to the direct URL.
+  // Prefer direct URLs first (faster, avoids routing everything through our server),
+  // then fall back to the same-origin proxy URL if needed.
   const attempts: string[] = [];
   const seenAttempt = new Set<string>();
   for (const url of base) {
+    if (!seenAttempt.has(url)) {
+      seenAttempt.add(url);
+      attempts.push(url);
+    }
+
     const proxied = toMediaProxyUrl(url);
     if (proxied && !seenAttempt.has(proxied)) {
       seenAttempt.add(proxied);
       attempts.push(proxied);
-    }
-
-    if (!seenAttempt.has(url)) {
-      seenAttempt.add(url);
-      attempts.push(url);
     }
   }
 

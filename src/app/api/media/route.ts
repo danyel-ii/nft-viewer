@@ -4,7 +4,7 @@ import net from "node:net";
 
 export const runtime = "nodejs";
 
-const MAX_BYTES = 20 * 1024 * 1024; // 20MB safety cap
+const MAX_BYTES = 40 * 1024 * 1024; // 40MB safety cap
 const FETCH_TIMEOUT_MS = 15_000;
 
 function jsonError(status: number, message: string) {
@@ -124,6 +124,12 @@ export async function GET(req: Request) {
 
   const ac = new AbortController();
   const t = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
+  const onClientAbort = () => ac.abort();
+  if (req.signal.aborted) {
+    ac.abort();
+  } else {
+    req.signal.addEventListener("abort", onClientAbort);
+  }
 
   try {
     const res = await fetch(upstream, {
@@ -165,5 +171,6 @@ export async function GET(req: Request) {
     return jsonError(502, "Upstream fetch failed.");
   } finally {
     clearTimeout(t);
+    req.signal.removeEventListener("abort", onClientAbort);
   }
 }

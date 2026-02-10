@@ -219,14 +219,15 @@ function PosterMedia(props: {
     const attempts: string[] = [];
     const seenAttempt = new Set<string>();
     for (const url of base) {
+      if (!seenAttempt.has(url)) {
+        seenAttempt.add(url);
+        attempts.push(url);
+      }
+
       const proxied = toMediaProxyUrl(url);
       if (proxied && !seenAttempt.has(proxied)) {
         seenAttempt.add(proxied);
         attempts.push(proxied);
-      }
-      if (!seenAttempt.has(url)) {
-        seenAttempt.add(url);
-        attempts.push(url);
       }
     }
 
@@ -345,7 +346,8 @@ function PosterMedia(props: {
             });
 
             // Palette extraction: best-effort. If the loaded URL is cross-origin and
-            // taints canvas, we retry using the same-origin media proxy.
+            // taints canvas, we retry using either a CORS-enabled reload or the same-origin
+            // media proxy.
             if (lastThemedUrlRef.current === mediaUrl) return;
             lastThemedUrlRef.current = mediaUrl;
 
@@ -354,24 +356,50 @@ function PosterMedia(props: {
               const theme = buildAccentThemeFromPalette(palette);
               props.onTheme(theme);
             } catch {
-              const proxy = toMediaProxyUrl(mediaUrl);
-              if (!proxy) return;
+              // If this is already same-origin, there's nothing else we can do here.
+              if (mediaUrl.startsWith("/api/media?")) return;
 
-              // Retry palette extraction from same-origin pixels.
+              const proxy = toMediaProxyUrl(mediaUrl);
+
+              const tryProxy = () => {
+                if (!proxy) return;
+
+                // Retry palette extraction from same-origin pixels.
+                const img = new Image();
+                img.decoding = "async";
+                img.onload = () => {
+                  if (lastThemedUrlRef.current === proxy) return;
+                  lastThemedUrlRef.current = proxy;
+                  try {
+                    const palette = extractPaletteFromImage(img);
+                    const theme = buildAccentThemeFromPalette(palette);
+                    props.onTheme(theme);
+                  } catch {
+                    // ignore
+                  }
+                };
+                img.src = proxy;
+              };
+
+              // Try a CORS-enabled reload first. If the upstream serves permissive CORS headers,
+              // this avoids routing pixels through our proxy.
+              const corsKey = `cors:${mediaUrl}`;
               const img = new Image();
+              img.crossOrigin = "anonymous";
               img.decoding = "async";
               img.onload = () => {
-                if (lastThemedUrlRef.current === proxy) return;
-                lastThemedUrlRef.current = proxy;
+                if (lastThemedUrlRef.current === corsKey) return;
+                lastThemedUrlRef.current = corsKey;
                 try {
                   const palette = extractPaletteFromImage(img);
                   const theme = buildAccentThemeFromPalette(palette);
                   props.onTheme(theme);
                 } catch {
-                  // ignore
+                  tryProxy();
                 }
               };
-              img.src = proxy;
+              img.onerror = () => tryProxy();
+              img.src = mediaUrl;
             }
           }}
           onError={() => {

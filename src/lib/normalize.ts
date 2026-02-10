@@ -1,6 +1,6 @@
 import type { ChainName } from "@/lib/chains";
 import { CHAIN_EXPLORER_BASE_URL } from "@/lib/chains";
-import { normalizeUrl } from "@/lib/ipfs";
+import { normalizeUrl, normalizeUrlToCandidates } from "@/lib/ipfs";
 import type { NftAttribute, NftCard } from "@/lib/types";
 
 function asArray(value: unknown): unknown[] {
@@ -31,11 +31,15 @@ function normalizeUrlCandidates(...values: unknown[]): string[] {
   for (const v of values) {
     const s = asString(v)?.trim();
     if (!s) continue;
-    const normalized = normalizeUrl(s);
-    if (!normalized) continue;
-    if (seen.has(normalized)) continue;
-    seen.add(normalized);
-    out.push(normalized);
+
+    // Expand IPFS inputs to a few gateway candidates (for reliability).
+    const candidates = normalizeUrlToCandidates(s);
+    for (const normalized of candidates) {
+      if (!normalized) continue;
+      if (seen.has(normalized)) continue;
+      seen.add(normalized);
+      out.push(normalized);
+    }
   }
 
   return out;

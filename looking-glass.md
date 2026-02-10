@@ -166,6 +166,9 @@ NFTs sometimes come with more than one possible media link (for example: a cache
 On the server, we **normalize** the NFT into a “card” and keep a short ordered list of media URLs.
 The first one becomes `imageUrl` (or `animationUrl`), and the rest become **fallbacks**.
 
+If the NFT uses **IPFS**, we also generate a few different “gateway” URLs for the same file.
+That way, if one IPFS gateway is down or slow, the next gateway can still work.
+
 In the browser, the card tries the first URL.
 If the browser says “this image failed”, the card automatically tries the next fallback URL.
 It only shows “No media” after every candidate fails.
@@ -175,6 +178,9 @@ That means the top-of-deck images start downloading right away instead of someti
 
 If a browser extension blocks cross-site media (for example “blocked by client”), the card can also try a same-origin proxy.
 That proxy lives inside our app, so the browser is just loading from `localhost`.
+
+We try direct URLs first (fast), and only use the proxy if we need it.
+The proxy has guardrails: it only allows `https://` URLs, blocks private-network hostnames, times out slow requests, and refuses very large files.
 
 While an image is downloading, we show a soft “shimmer” placeholder so the card doesn’t look empty.
 
