@@ -25,6 +25,35 @@ Add short “never again” rules here when patterns repeat.
 
 ## Log (newest first)
 
+### 2026-02-10 — ESLint Failed Due To Mutating A Ref During Render In The Deck Ribbon
+**Task/Context:**  
+Add a small bottom “thumbnail ribbon” to let users scroll NFTs and click one to bring it to the top of the deck.
+
+**Mistake:**  
+Mutated a ref during render (`attemptIndexRef.current = attemptIndex`) and used a `useMemo` callback that referenced `props.card` without including it in the dependency list.
+
+**Symptom / Evidence:**  
+`pnpm lint` failed with:
+- `Error: Cannot access refs during render` (`react-hooks/refs`)
+- Warning: `React Hook useMemo has a missing dependency: 'props.card'` (`react-hooks/exhaustive-deps`)
+
+**Root cause:**  
+React hooks lint rules prohibit reading/writing ref `.current` during render, and `exhaustive-deps` flags hook closures that capture object props without listing them.
+
+**Fix (what we changed):**  
+- Removed the ref mutation and used the current `attemptIndex` state inside `onError`.
+- Changed the memoized helper to depend on `imageUrl` + `imageFallbackUrls` instead of capturing the full `card` object.
+
+**Prevention (so it doesn’t happen again):**  
+Avoid mutating refs during render; prefer closures, state updaters, or effects. For memoized helpers, pass primitives (or small tuples) instead of whole objects so dependencies stay explicit. Run `pnpm lint` right after adding new components.
+
+**References (files/commands):**  
+- Files: `src/components/DeckRibbon.tsx`  
+- Commands: `pnpm lint`
+
+**Tags:**  
+`lint`, `react`, `ui`
+
 ### 2026-02-10 — Git Branch Commands Failed Because Repo Was Not Initialized
 **Task/Context:**  
 Create a new git branch named `print` and switch to it for print-view layout work.

@@ -25,10 +25,37 @@ Add new words as they appear.
 - **Absolute positioning**: a CSS way to place something on top of other things without taking up normal layout space.
 - **Index**: a number that points at a spot in a list (like “0 means the first thing”).
 - **Grid**: a CSS way to divide a page into rows (and columns) so each part gets the right amount of space.
+- **Thumbnail**: a tiny preview picture (a small version of the real image).
+- **Ribbon**: a long, thin strip of UI that you can scroll sideways.
 
 ---
 
 ## The Feature Map (newest changes at the top)
+
+### Feature: Thumbnail Ribbon (Pick Any NFT)
+**What you can do (in the app):**  
+Scroll a tiny row of NFT thumbnails at the bottom, and click any thumbnail to bring that NFT to the top of the deck.
+
+**What the computer does (the story):**  
+The deck has a list of cards (`order`) and a number called `activeIndex` that says which card is on top.
+
+The ribbon shows thumbnails for all cards in `order`.
+Scrolling the ribbon does not change `activeIndex`, so the top card stays the same.
+
+When you click a thumbnail, the code runs `bringToTop(index)` in `src/components/NftDeckApp.tsx`.
+That sets `activeIndex` to the clicked card and also turns off `isFlipped` (so you see the card front again).
+Because the deck draws the “top N” cards starting at `activeIndex`, the clicked NFT becomes the new top card.
+
+The ribbon tries to load the NFT image URL (and a few fallback URLs).
+It prefers our own `/api/media` proxy first, which helps when the browser blocks cross-site images.
+Thumbnails use `loading="lazy"` so we don’t download every image at once.
+
+If you focus a thumbnail (with Tab), the app won’t use ←/→ to flip the whole deck.
+That’s because ribbon elements are marked with `data-no-global-keys`.
+
+**Where this lives in the code:**  
+- Ribbon UI: `src/components/DeckRibbon.tsx`
+- “Bring to top” handler + keyboard guard: `src/components/NftDeckApp.tsx`
 
 ### Feature: Poster / Print View
 **What you can do (in the app):**  

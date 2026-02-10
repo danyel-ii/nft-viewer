@@ -15,6 +15,7 @@ import { NetworkToggle } from "@/components/NetworkToggle";
 import { WalletSearchBar } from "@/components/WalletSearchBar";
 import { DeckControls } from "@/components/DeckControls";
 import { TradingCardDeck } from "@/components/TradingCardDeck";
+import { DeckRibbon } from "@/components/DeckRibbon";
 
 type Props = {
   initialChain?: ChainName;
@@ -313,6 +314,13 @@ export function NftDeckApp(props: Props) {
     setActiveIndex(0);
   }
 
+  function bringToTop(index: number) {
+    if (!canInteract || order.length === 0) return;
+    const next = Math.max(0, Math.min(order.length - 1, index));
+    setIsFlipped(false);
+    setActiveIndex(next);
+  }
+
   function openPoster() {
     if (!canInteract) return;
     if (!activeCard) return;
@@ -335,6 +343,7 @@ export function NftDeckApp(props: Props) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
+      if (target?.closest("[data-no-global-keys]")) return;
       const tag = target?.tagName?.toLowerCase();
       const isTyping =
         tag === "input" || tag === "textarea" || Boolean(target?.isContentEditable);
@@ -401,7 +410,12 @@ export function NftDeckApp(props: Props) {
 
       <div className="relative mx-auto w-[min(96vw,1600px)] min-h-[82dvh] bauhaus-frame grid grid-cols-1 overflow-hidden md:grid-cols-[1fr_420px]">
         {/* Art frame / deck */}
-        <section className="relative flex items-center justify-center overflow-hidden border-b-4 border-[var(--ink-black)] p-4 md:border-b-0 md:border-r-4 md:p-8">
+        <section
+          className={clsx(
+            "relative flex items-center justify-center overflow-hidden border-b-4 border-[var(--ink-black)] p-4 md:border-b-0 md:border-r-4 md:p-8",
+            order.length ? "pb-28 md:pb-32" : "",
+          )}
+        >
           <div
             className={clsx(
               // Use height as the driver so the deck can be larger without getting
@@ -429,6 +443,17 @@ export function NftDeckApp(props: Props) {
               />
             </div>
           </div>
+
+          {order.length ? (
+            <div className="absolute bottom-6 left-1/2 w-[min(92%,720px)] -translate-x-1/2">
+              <DeckRibbon
+                cards={order}
+                activeIndex={activeIndex}
+                disabled={!canInteract}
+                onSelect={bringToTop}
+              />
+            </div>
+          ) : null}
         </section>
 
         {/* Data panel */}
