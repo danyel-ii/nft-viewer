@@ -20,6 +20,23 @@ function toMediaProxyUrl(url: string) {
   }
 }
 
+function scoreThumbUrl(url: string) {
+  const u = url.toLowerCase();
+
+  // Alchemy provides fast Cloudinary thumbnails; prefer those for the ribbon.
+  if (u.includes("res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/")) return 0;
+  if (u.includes("thumbnailv2")) return 0;
+  if (u.includes("thumbnail")) return 1;
+  if (u.includes("thumb")) return 2;
+
+  if (u.includes("convert-png")) return 3;
+
+  // The nft-cdn URLs can be very large (e.g. full GIFs); keep them as last resort.
+  if (u.includes("nft-cdn.alchemy.com")) return 9;
+
+  return 5;
+}
+
 function buildThumbAttemptUrls(args: { imageUrl: string | null; imageFallbackUrls?: string[] }) {
   const raw = [args.imageUrl, ...(args.imageFallbackUrls ?? [])].filter(Boolean) as string[];
 
@@ -30,6 +47,8 @@ function buildThumbAttemptUrls(args: { imageUrl: string | null; imageFallbackUrl
     seenBase.add(url);
     base.push(url);
   }
+
+  base.sort((a, b) => scoreThumbUrl(a) - scoreThumbUrl(b));
 
   // Prefer direct URLs first (faster, avoids routing everything through our server),
   // then fall back to the same-origin proxy URL if needed.
@@ -80,7 +99,7 @@ function RibbonThumb(props: {
       disabled={props.disabled}
       onClick={props.onSelect}
       className={clsx(
-        "relative h-14 w-full overflow-hidden rounded-none bg-white bauhaus-stroke",
+        "relative h-14 w-full min-w-16 overflow-hidden rounded-none bg-white bauhaus-stroke",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ink-black)]",
         "disabled:cursor-not-allowed disabled:opacity-60",
         props.isActive && "outline outline-2 outline-[var(--bauhaus-red)] outline-offset-2",

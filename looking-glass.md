@@ -47,11 +47,13 @@ That sets `activeIndex` to the clicked card and also turns off `isFlipped` (so y
 Because the deck draws the “top N” cards starting at `activeIndex`, the clicked NFT becomes the new top card.
 
 The ribbon tries to load the NFT image URL (and a few fallback URLs).
-It prefers our own `/api/media` proxy first, which helps when the browser blocks cross-site images.
+It prefers small thumbnail URLs first (Alchemy’s Cloudinary `thumbnailv2` when available), so the ribbon loads fast.
+It tries direct URLs first (fast), and only then tries our `/api/media` proxy as a backup when a host blocks cross-site images or an IPFS gateway is flaky.
 Thumbnails use `loading="lazy"` so we don’t download every image at once.
 
 The ribbon also uses a **grid** trick to keep the thumbnails a good size.
 It computes each thumbnail width so about 7 thumbnails fit across the ribbon at once.
+Each thumbnail also has a minimum width so the ribbon can’t collapse into thin “stripes”.
 
 If you focus a thumbnail (with Tab), the app won’t use ←/→ to flip the whole deck.
 That’s because ribbon elements are marked with `data-no-global-keys`.
