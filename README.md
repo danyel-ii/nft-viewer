@@ -1,11 +1,11 @@
 # NFT Trading Card Deck
 
-Read-only web app that lets you enter an **EVM address or ENS name** and browse all NFTs held by that public wallet as a **3D trading-card deck**.
+Read-only web app that lets you enter an **EVM address or ENS name** and browse all NFTs held by that public wallet as a trading-card deck.
 
 ## Features
 - Wallet input: `0x…` address or ENS (example: `vitalik.eth`)
 - Network toggle: **Ethereum mainnet**, **Base**, **Celo**
-- 3D deck controls: **Prev / Next / Flip / Shuffle**
+- Deck controls: **Prev / Next / Flip / Shuffle**
 - Poster view: **Poster** button opens `/print` for the current top card (print-friendly art poster)
   - Print poster is A4-sized and automatically themes its accent colors from the NFT image
 - Keyboard controls:
