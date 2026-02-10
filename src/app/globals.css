@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+:root {
+  /* Bauhaus "Sunset" palette (inspired by the provided reference UI) */
+  --bg-cream: #fff5e6;
+  --bauhaus-red: #e2583e;
+  --bauhaus-blue: #8c3b32;
+  --bauhaus-yellow: #ffb347;
+  --ink-black: #2d1a12;
+
+  --background: var(--bg-cream);
+  --foreground: var(--ink-black);
+
+  --stroke-width: 4px;
+  --shadow-offset: 20px;
+  --shadow-color: rgba(45, 26, 18, 0.15);
+
+  --stripes: repeating-linear-gradient(
+    180deg,
+    var(--ink-black),
+    var(--ink-black) 4px,
+    transparent 4px,
+    transparent 12px
+  );
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-saira);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-archivo-black);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Small helper classes for the Bauhaus layout */
+.bauhaus-frame {
+  background: var(--bg-cream);
+  border: var(--stroke-width) solid var(--ink-black);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow-color);
+}
+
+.bauhaus-stroke {
+  border: var(--stroke-width) solid var(--ink-black);
+}
+
+.bauhaus-stroke-l {
+  border-left: var(--stroke-width) solid var(--ink-black);
+}
+
+.bauhaus-stroke-r {
+  border-right: var(--stroke-width) solid var(--ink-black);
+}
+
+.bauhaus-stroke-t {
+  border-top: var(--stroke-width) solid var(--ink-black);
+}
+
+.bauhaus-stroke-b {
+  border-bottom: var(--stroke-width) solid var(--ink-black);
+}
+
+.bauhaus-stripes {
+  background-image: var(--stripes);
+}
+
+/* Screen/print helpers */
+.print-only {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print helpers */
+@media print {
+  /* Keep our poster colors/shapes in print output. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-page {
+    padding: 0 !important;
+    min-height: auto !important;
+    background: white !important;
+  }
+
+  /* Frames look nicer without huge on-screen shadows when printed. */
+  .print-frame {
+    box-shadow: none !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  /* A4 content box: 210mm x 297mm minus 10mm margins each side. */
+  .print-container {
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .print-frame {
+    width: 190mm !important;
+    height: 277mm !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  .print-content {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+}
