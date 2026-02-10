@@ -145,7 +145,7 @@ export function DeckRibbon(props: {
       data-no-global-keys
       aria-label="NFT thumbnail ribbon"
     >
-      <div className="grid grid-flow-col auto-cols-[minmax(0,calc((100%-3rem)/7))] gap-2 overflow-x-auto overscroll-x-contain scroll-smooth">
+      <div className="grid grid-flow-col auto-cols-[minmax(0,calc((100%_-_3rem)_/_7))] gap-2 overflow-x-auto overscroll-x-contain scroll-smooth">
         {props.cards.map((card, index) => (
           <RibbonThumb
             key={card.id}
